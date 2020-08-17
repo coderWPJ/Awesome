@@ -307,7 +307,7 @@ def iap_verify_receipt():
 >自动扣款时机：Apple 会在订阅到期之前的24小时内发起扣款，如果扣款失败，Apple 可能会进行长达60天的尝试，可通过收据中的 is_in_billing_retry_period 获得此状态，若为 false 标识 Apple 放弃扣款。
 >
 
-状态变更通知可收到如下状态变更（无续费支付成功）：
+状态变更通知可收到如下状态变更（无续费支付成功、扣款失败导致过期通知）：
 <table>
 <thead>
 <tr>
@@ -318,19 +318,19 @@ def iap_verify_receipt():
 <tbody>
 <tr>
 <td>INITIAL_BUY</td>
-<td>初次购买订阅。latest_receipt通过在App Store中验证，可以随时将您的服务器存储在服务器上以验证用户的订阅状态。</td>
+<td>首次订阅</td>
 </tr>
 <tr>
 <td>CANCEL</td>
-<td>Apple客户支持取消了订阅。检查Cancellation Date以了解订阅取消的日期和时间。</td>
+<td>Apple客户支持取消了订阅，或已联系 Apple 退款成功。检查Cancellation Date以了解订阅取消的日期和时间。</td>
 </tr>
 <tr>
 <td>RENEWAL</td>
-<td>已过期订阅的自动续订成功。检查Subscription Expiration Date以确定下一个续订日期和时间。</td>
+<td>扣款失败导致过期，但后续又扣款成功。检查Subscription Expiration Date以确定下一个续订日期和时间。</td>
 </tr>
 <tr>
 <td>INTERACTIVE_RENEWAL</td>
-<td>客户通过使用应用程序界面或在App Store中的App Store中以交互方式续订订阅。服务立即可用。</td>
+<td>客户主动恢复订阅。</td>
 </tr>
 <tr>
 <td>DID_CHANGE_RENEWAL_PREF</td>
@@ -361,7 +361,8 @@ def iap_verify_receipt():
 Note：
 
 - 对于续费成功的收据校验接口，可不提供用户信息（如userID），因为装有此App的 Apple 账户当前登录的手机可能登录的是其他用户的账号；
-- 服务端自己处理一个 App 用户，同一时间段对于一款自动续费订阅产品只能购买一次的逻辑 (一次交易有效期内，不能再次创建订单即可，客户端完成无法创建订单便不能调用支付的逻辑)，因为Apple 账户是支持多次购买。
+- 服务端自己处理一个 App 用户，同一时间段对于一款自动续费订阅产品只能购买一次的逻辑 (只需不能创建多个订单供客户端调用支付即可)，因为Apple 账户是支持多次购买。
+
 
 
 ## 参考
