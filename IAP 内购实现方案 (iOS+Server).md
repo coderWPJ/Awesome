@@ -302,7 +302,67 @@ def iap_verify_receipt():
 >Apple 服务器间通知
 
 #### 4.4 自动续期订阅用户续订问题：
->待补充
+>订阅用户的续订问题，即是否在用户的一个订阅周期结束后，继续为用户发放下一周期的权限，而发放权限的则是依据用户的下一周期的支付结果。
+>
+>自动扣款时机：Apple 会在订阅到期之前的24小时内发起扣款，如果扣款失败，Apple 可能会进行长达60天的尝试，可通过收据中的 is_in_billing_retry_period 获得此状态，若为 false 标识 Apple 放弃扣款。
+>
+
+状态变更通知可收到如下状态变更（无续费支付成功）：
+<table>
+<thead>
+<tr>
+<th>NOTIFICATION_TYPE</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INITIAL_BUY</td>
+<td>初次购买订阅。latest_receipt通过在App Store中验证，可以随时将您的服务器存储在服务器上以验证用户的订阅状态。</td>
+</tr>
+<tr>
+<td>CANCEL</td>
+<td>Apple客户支持取消了订阅。检查Cancellation Date以了解订阅取消的日期和时间。</td>
+</tr>
+<tr>
+<td>RENEWAL</td>
+<td>已过期订阅的自动续订成功。检查Subscription Expiration Date以确定下一个续订日期和时间。</td>
+</tr>
+<tr>
+<td>INTERACTIVE_RENEWAL</td>
+<td>客户通过使用应用程序界面或在App Store中的App Store中以交互方式续订订阅。服务立即可用。</td>
+</tr>
+<tr>
+<td>DID_CHANGE_RENEWAL_PREF</td>
+<td>客户更改了在下次续订时生效的计划。当前的有效计划不受影响。</td>
+</tr>
+</tbody>
+</table>
+用户的支付结果主要有如下状态：
+
+1. Apple 正常扣款 (Server轮询获取或客户端接收到扣款成功通知后);
+- Apple 扣款失败（如：用户在 Apple ID 中移除了可用的付款方式，或绑定的付款账户余额不足等）;
+- 用户不再订阅（权限使用期限在此订阅周期结束后停止）;
+- 退款（可立刻停止发放其权限）.
+
+状态获取目前已知有如下方式：
+
+1. Server 通过收据校验接口查询；
+2. 状态变更通知通知，详情请参考[Apple 服务器间通知](https://developer.apple.com/documentation/storekit/in-app_purchase/subscriptions_and_offers/enabling_server-to-server_notifications)
+
+综上，IAP 自动续费处理方案：
+
+1. 服务端可在当前订阅结束前一天内开始，轮询调用收据校验接口查询扣款状态，检测到扣款成功则停止<font color='#FF00'> （若已接收到用户退款、退订的则不需要）</font > ；
+2. 客户端生命周期内始终开启 IAP 交易结果监听，在收到交易状态为 Restored（扣款成功） 时提交至后台检验；
+3. 客户端每次查看用户特权状态（或用户信息）时，在所调用的接口逻辑触发校验
+4. 服务端在收到状态变更通知后，更新对应用户特权状态。
+
+
+Note：
+
+- 对于续费成功的收据校验接口，可不提供用户信息（如userID），因为装有此App的 Apple 账户当前登录的手机可能登录的是其他用户的账号；
+- 服务端自己处理一个 App 用户，同一时间段对于一款自动续费订阅产品只能购买一次的逻辑，因为Apple 账户是支持多次购买。
+
 
 ## 参考
 
