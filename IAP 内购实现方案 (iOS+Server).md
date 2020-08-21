@@ -146,9 +146,9 @@ request.delegate = self;
 1. 校验渠道：App store server ，有生产系统（https://buy.itunes.apple.com/verifyReceipt）和sandbox（https://sandbox.itunes.apple.com/verifyReceipt）之分
 2. 对于支付收据的校验，若无特殊的要求，安全起见请尽量将校验工作放在后台，即客户端提交订单信息与支付收据至后台，后台校验支付结果，根据结果判定是否发放对应虚拟商品。
 
-> Notice1：Apple 官方建议的校验逻辑：先调用 <u><font color='#FF0000'>https://buy.itunes.apple.com/verifyReceipt</font></u> 接口来校验收据，当响应数据中 <font color='#0000FF'> status </font> 字段为 <font color='#0000FF'> 21007 </font> 时，再调用 <u><font color='#FF0000'>https://sandbox.itunes.apple.com/verifyReceipt</font></u> 去校验。
+> - Apple 官方建议的校验逻辑：先调用 <u><font color='#FF0000'>https://buy.itunes.apple.com/verifyReceipt</font></u> 接口来校验收据，当响应数据中 <font color='#0000FF'> status </font> 字段为 <font color='#0000FF'> 21007 </font> 时，再调用 <u><font color='#FF0000'>https://sandbox.itunes.apple.com/verifyReceipt</font></u> 去校验。
 > 
-> Notice2：App store server接口延时可能比较高，与此同时，后台请对收据做数据库存储，方便后续再次使用以查询订单的交易状态；
+> - App store server接口延时可能比较高，与此同时，后台请对收据做数据库存储，方便后续再次使用以查询订单的交易状态；
 
 服务端校验收据代码示例
 
