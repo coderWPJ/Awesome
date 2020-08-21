@@ -296,7 +296,7 @@ def iap_verify_receipt():
 >未完待续......
 
 #### 4.2 用户付款后，自己联系 Apple 进行退款，要如何监测以停止授权（如停止其使用相关特权功能，或扣除金币等操作等）：
->待补充
+>状态变更通知通知，详情请参考[Apple 服务器间通知](https://developer.apple.com/documentation/storekit/in-app_purchase/subscriptions_and_offers/enabling_server-to-server_notifications)
 
 #### 4.3 自动续期订阅的用户退订、续订问题：
 >订阅用户的续订问题，即是否在用户的一个订阅周期结束后，继续为用户发放下一周期的权限，而发放权限的则是依据用户的下一周期的支付结果。
